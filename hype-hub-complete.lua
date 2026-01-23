@@ -390,22 +390,25 @@ local function toggleBombJump()
     bombJumpBtn.BackgroundColor3 = bombJump and Color3.fromRGB(20, 80, 20) or Color3.fromRGB(40, 40, 60)
 end
 
+UserInputService.JumpRequest:Connect(function()
+    if bombJump then
+        pcall(function()
+            local character = getCharacter()
+            local tool = character:FindFirstChildOfClass("Tool")
+            if tool and tool.Name == "Prank" then
+                task.wait(0.3)
+                getHumanoid():ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+    end
+end)
+
 workspace.ChildAdded:Connect(function(child)
     task.wait(0.1)
     if autoGun and child.Name == "GunDrop" then
         pcall(function()
             firetouchinterest(getRootPart(), child, 0)
             firetouchinterest(getRootPart(), child, 1)
-        end)
-    end
-    if bombJump and child.Name == "Prank" then
-        pcall(function()
-            local root = getRootPart()
-            child.CFrame = root.CFrame
-            task.wait(0.05)
-            firetouchinterest(root, child, 0)
-            task.wait()
-            firetouchinterest(root, child, 1)
         end)
     end
 end)
