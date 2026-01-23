@@ -391,18 +391,21 @@ local function toggleBombJump()
 end
 
 workspace.ChildAdded:Connect(function(child)
+    task.wait(0.1)
     if autoGun and child.Name == "GunDrop" then
-        task.wait(0.1)
         pcall(function()
             firetouchinterest(getRootPart(), child, 0)
             firetouchinterest(getRootPart(), child, 1)
         end)
     end
-    if bombJump and child.Name == "Bomb" then
-        task.wait(0.1)
+    if bombJump and child.Name == "Prank" then
         pcall(function()
-            firetouchinterest(getRootPart(), child, 0)
-            firetouchinterest(getRootPart(), child, 1)
+            local root = getRootPart()
+            child.CFrame = root.CFrame
+            task.wait(0.05)
+            firetouchinterest(root, child, 0)
+            task.wait()
+            firetouchinterest(root, child, 1)
         end)
     end
 end)
