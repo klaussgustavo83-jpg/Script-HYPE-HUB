@@ -81,8 +81,8 @@ keyStatus.Parent = keyFrame
 
 -- Main Frame (hidden initially)
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 570)
-mainFrame.Position = UDim2.new(0.5, -150, 0.5, -285)
+mainFrame.Size = UDim2.new(0, 300, 0, 620)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -310)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
@@ -137,14 +137,15 @@ local jumpBtn = createButton("INFINITE JUMP: OFF", 220, mainFrame)
 local aimkillBtn = createButton("AIMKILL: OFF", 270, mainFrame)
 local aimbotBtn = createButton("AIMBOT MURDERER [E]", 320, mainFrame)
 local espBtn = createButton("ESP: OFF", 370, mainFrame)
-local autoGunBtn = createButton("AUTO GRAB GUN: ON", 420, mainFrame)
+local bombJumpBtn = createButton("BOMB JUMP: OFF", 420, mainFrame)
+local autoGunBtn = createButton("AUTO GRAB GUN: ON", 470, mainFrame)
 autoGunBtn.BackgroundColor3 = Color3.fromRGB(20, 80, 20)
-local closeBtn = createButton("CLOSE", 470, mainFrame)
+local closeBtn = createButton("CLOSE", 520, mainFrame)
 closeBtn.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
 closeBtn.Font = Enum.Font.GothamBold
 
 -- Variables
-local flying, noclip, aimkill, infJump, espEnabled, autoGun = false, false, false, false, false, true
+local flying, noclip, aimkill, infJump, espEnabled, autoGun, bombJump = false, false, false, false, false, true, false
 local speed = 50
 local espCache = {}
 local bodyVelocity, bodyGyro
@@ -382,8 +383,22 @@ local function toggleAutoGun()
     autoGunBtn.BackgroundColor3 = autoGun and Color3.fromRGB(20, 80, 20) or Color3.fromRGB(40, 40, 60)
 end
 
+-- Bomb Jump
+local function toggleBombJump()
+    bombJump = not bombJump
+    bombJumpBtn.Text = bombJump and "BOMB JUMP: ON" or "BOMB JUMP: OFF"
+    bombJumpBtn.BackgroundColor3 = bombJump and Color3.fromRGB(20, 80, 20) or Color3.fromRGB(40, 40, 60)
+end
+
 workspace.ChildAdded:Connect(function(child)
     if autoGun and child.Name == "GunDrop" then
+        task.wait(0.1)
+        pcall(function()
+            firetouchinterest(getRootPart(), child, 0)
+            firetouchinterest(getRootPart(), child, 1)
+        end)
+    end
+    if bombJump and child.Name == "Bomb" then
         task.wait(0.1)
         pcall(function()
             firetouchinterest(getRootPart(), child, 0)
@@ -396,7 +411,7 @@ end)
 local minimized = false
 minimizeBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
-    mainFrame.Size = minimized and UDim2.new(0, 300, 0, 50) or UDim2.new(0, 300, 0, 570)
+    mainFrame.Size = minimized and UDim2.new(0, 300, 0, 50) or UDim2.new(0, 300, 0, 620)
     minimizeBtn.Text = minimized and "+" or "-"
     for _, child in pairs(mainFrame:GetChildren()) do
         if child ~= title and child ~= minimizeBtn and child:IsA("TextButton") then
@@ -412,16 +427,15 @@ flyBtn.MouseButton1Click:Connect(toggleFly)
 noclipBtn.MouseButton1Click:Connect(toggleNoclip)
 aimkillBtn.MouseButton1Click:Connect(toggleAimkill)
 espBtn.MouseButton1Click:Connect(toggleESP)
+bombJumpBtn.MouseButton1Click:Connect(toggleBombJump)
 autoGunBtn.MouseButton1Click:Connect(toggleAutoGun)
 closeBtn.MouseButton1Click:Connect(function()
-    -- Desliga todas as features
     if flying then toggleFly() end
     if noclip then toggleNoclip() end
     if aimkill then toggleAimkill() end
     if espEnabled then toggleESP() end
+    if bombJump then toggleBombJump() end
     if autoGun then toggleAutoGun() end
-    
-    -- Destroi a GUI
     screenGui:Destroy()
 end)
 
