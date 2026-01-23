@@ -137,7 +137,7 @@ local jumpBtn = createButton("INFINITE JUMP: OFF", 220, mainFrame)
 local aimkillBtn = createButton("AIMKILL: OFF", 270, mainFrame)
 local aimbotBtn = createButton("AIMBOT MURDERER [E]", 320, mainFrame)
 local espBtn = createButton("ESP: OFF", 370, mainFrame)
-local bombJumpBtn = createButton("BOMB JUMP: OFF", 420, mainFrame)
+local bombJumpBtn = createButton("AUTO FARM: OFF", 420, mainFrame)
 local autoGunBtn = createButton("AUTO GRAB GUN: ON", 470, mainFrame)
 autoGunBtn.BackgroundColor3 = Color3.fromRGB(20, 80, 20)
 local closeBtn = createButton("CLOSE", 520, mainFrame)
@@ -145,7 +145,7 @@ closeBtn.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
 closeBtn.Font = Enum.Font.GothamBold
 
 -- Variables
-local flying, noclip, aimkill, infJump, espEnabled, autoGun, bombJump = false, false, false, false, false, true, false
+local flying, noclip, aimkill, infJump, espEnabled, autoGun, autoFarm = false, false, false, false, false, true, false
 local speed = 50
 local espCache = {}
 local bodyVelocity, bodyGyro
@@ -383,21 +383,27 @@ local function toggleAutoGun()
     autoGunBtn.BackgroundColor3 = autoGun and Color3.fromRGB(20, 80, 20) or Color3.fromRGB(40, 40, 60)
 end
 
--- Bomb Jump
-local function toggleBombJump()
-    bombJump = not bombJump
-    bombJumpBtn.Text = bombJump and "BOMB JUMP: ON" or "BOMB JUMP: OFF"
-    bombJumpBtn.BackgroundColor3 = bombJump and Color3.fromRGB(20, 80, 20) or Color3.fromRGB(40, 40, 60)
+-- Auto Farm
+local function toggleAutoFarm()
+    autoFarm = not autoFarm
+    bombJumpBtn.Text = autoFarm and "AUTO FARM: ON" or "AUTO FARM: OFF"
+    bombJumpBtn.BackgroundColor3 = autoFarm and Color3.fromRGB(20, 80, 20) or Color3.fromRGB(40, 40, 60)
 end
 
-UserInputService.JumpRequest:Connect(function()
-    if bombJump then
+RunService.Heartbeat:Connect(function()
+    if autoFarm then
         pcall(function()
-            local character = getCharacter()
-            local tool = character:FindFirstChildOfClass("Tool")
-            if tool and tool.Name == "Prank" then
-                task.wait(0.3)
-                getHumanoid():ChangeState(Enum.HumanoidStateType.Jumping)
+            for _, coin in pairs(workspace:GetDescendants()) do
+                if coin.Name == "Coin" or coin.Name == "CoinContainer" then
+                    local root = getRootPart()
+                    if coin:IsA("BasePart") then
+                        firetouchinterest(root, coin, 0)
+                        firetouchinterest(root, coin, 1)
+                    elseif coin:FindFirstChild("Coin") then
+                        firetouchinterest(root, coin.Coin, 0)
+                        firetouchinterest(root, coin.Coin, 1)
+                    end
+                end
             end
         end)
     end
@@ -433,14 +439,14 @@ flyBtn.MouseButton1Click:Connect(toggleFly)
 noclipBtn.MouseButton1Click:Connect(toggleNoclip)
 aimkillBtn.MouseButton1Click:Connect(toggleAimkill)
 espBtn.MouseButton1Click:Connect(toggleESP)
-bombJumpBtn.MouseButton1Click:Connect(toggleBombJump)
+bombJumpBtn.MouseButton1Click:Connect(toggleAutoFarm)
 autoGunBtn.MouseButton1Click:Connect(toggleAutoGun)
 closeBtn.MouseButton1Click:Connect(function()
     if flying then toggleFly() end
     if noclip then toggleNoclip() end
     if aimkill then toggleAimkill() end
     if espEnabled then toggleESP() end
-    if bombJump then toggleBombJump() end
+    if autoFarm then toggleAutoFarm() end
     if autoGun then toggleAutoGun() end
     screenGui:Destroy()
 end)
